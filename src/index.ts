@@ -1,12 +1,21 @@
 const express = require("express");
-import {Request, Response} from "express";
+import io from "socket.io";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!')
-})
+let count = 0;
 
-app.listen(PORT, () => {
+app.use(express.static('public'));
+
+const server = app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`)
 })
+const ioServer = io(server);
+
+ioServer.on('connection', (socket) => {
+    socket.on('add', () => {
+        count++;
+        ioServer.emit('brodcastAdd', {value: count});
+    });
+});
